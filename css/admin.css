@@ -1,0 +1,219 @@
+/* **** Hack against PluXml **** */
+body:not(.fullScreen) .kzAce .action-bar {
+	z-index: 9; /* .ace_editor.fullScreen { z-index: 10; } ! */
+}
+#ace_settingsmenu label {
+    display: inline-block;
+}
+#ace_settingsmenu input[type="text"],
+#ace_settingsmenu select {
+	height: auto;
+}
+/* ***** hack against Ace ***** */
+#ace_settingsmenu input[type="text"]:not([name="setOptions"]) {
+	width: 4rem;
+	text-align: right;
+}
+#ace_settingsmenu {
+	width: 35rem;
+	padding: 1rem;
+	line-height: medium;
+}
+#ace_settingsmenu > div {
+	padding: 0.2rem 0;
+}
+form .ace_editor,
+#form_kzAce + div .ace_editor {
+	font-size: initial;
+	font-family: 'Noto Mono', 'Ubuntu Mono', Monospace;
+}
+form .ace_editor {
+	margin: 0;
+}
+.ace_closeButton {
+	top: 1rem;
+	right: 2rem;
+	z-index: 9995;
+}
+
+.kzAce pre.ace_editor {
+	resize: vertical;
+	min-height: 6rem;
+}
+.kzAce .statusbar {
+	height: 2.5rem;
+    display: flex;
+    background-color: #eee;
+    padding: 0.3rem 0.5rem 0 0;
+    font-size: 80%;
+    border-top: 1px solid #ccc;
+}
+.kzAce .statusbar .spacer {
+	flex-grow: 1;
+}
+.kzAce .statusbar > div:first-of-type span {
+	padding: 0 0.3rem;
+}
+.kzAce .statusbar > div:first-of-type span:not(:last-of-type) {
+    border-right: 1px solid #444;
+}
+.kzAce .statusbar > div:first-of-type span[data-command] {
+	cursor: pointer;
+}
+.kzAce .statusbar > div:first-of-type span[data-command]:hover {
+	background-color: #444;
+	color: #fff;
+}
+body.fullScreen .kzAce .statusbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+/* **** voir ace/demo/scrollable-page.html **** */
+body.fullScreen .ace_editor {
+	position: fixed !important;
+	border: 0;
+	margin: 0;
+	top: 0;
+	bottom: 2.5rem; /* Height of the statusbar */
+	left: 0;
+	right: 0;
+	z-index: 10;
+}
+
+/* ******** config.php ******** */
+#form_kzAce {
+	border: 1px solid #888;
+	max-width: 70rem;
+}
+#form_kzAce label {
+	display: inline-block;
+	width: 20rem;
+	text-align: right;
+}
+#form_kzAce .admin-files {
+	display: flex;
+	flex-wrap: wrap;
+}
+#form_kzAce .admin-files p {
+    margin: 0.3rem 0;
+}
+#form_kzAce > div:last-of-type p {
+	margin-bottom: 0;
+}
+#form_kzAce > div:last-of-type input[type="submit"] {
+	width: 100%;
+}
+#form_kzAce + div textarea {
+	height: 10rem;
+	width: 100%;
+}
+#form_kzAce .icon {
+	position: fixed;
+	top: 1rem;
+	z-index: 20;
+	right: 1rem;
+}
+
+/* **** shortcuts keyboard **** */
+#kzAce-kb-shortcuts {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	background-color: #000000e6;
+	z-index: 30;
+}
+#kzAce-kb-shortcuts.active {
+	display: block;
+}
+#kzAce-kb-shortcuts > div {
+	position: absolute;
+	top: -640px;
+	left: 5rem;
+	right: 5rem;
+	background-color: #869099;
+	text-align: center;
+	border-radius: 0.8rem;
+	transition: top 2s;
+}
+#kzAce-kb-shortcuts.active > div {
+	top: 20px;
+}
+#kzAce-kb-shortcuts h1 {
+	margin: 0.5rem auto;
+	color: #fff;
+}
+#kzAce-kb-shortcuts ul {
+	list-style: none;
+	height: 600px;
+	overflow: auto;
+	padding: 0.8rem;
+}
+#kzAce-kb-shortcuts li {
+	display: inline-block;
+	margin: 0.2rem;
+	padding: 0.2rem 0.5rem;
+	width: 30rem;
+	text-align: start;
+	background-color: #eee;
+}
+#kzAce-kb-shortcuts span:first-of-type {
+	display: inline-block;
+	min-width: 13rem;
+	color: firebrick;
+	text-align: right;
+}
+#kzAce-kb-shortcuts .close {
+	position: absolute;
+	top: 1rem;
+	display: inline-block;
+	right: 2rem;
+	cursor: pointer;
+}
+/* **** AdminPluginCss.php ****** */
+#parametres_plugincss fieldset .grid > div.tab {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+#parametres_plugincss fieldset .grid:first-of-type > div.tab {
+	margin-top: 3rem;
+}
+#parametres_plugincss fieldset .grid:last-of-type > div.tab {
+	margin-bottom: 2rem;
+}
+#parametres_plugincss fieldset .grid > div.tab label {
+	position: absolute;
+	top: 0;
+	width: calc(30rem - 0.5rem);
+	margin-right: 0.5rem;
+	text-align: center;
+}
+/* calc(2rem + 30rem * attr('data-order')) ne fonctionne pas ! */
+#parametres_plugincss fieldset .grid > div.tab label[data-order="0"] {
+	left: calc(2rem + 30rem * 0);
+}
+#parametres_plugincss fieldset .grid > div.tab label[data-order="1"] {
+	left: calc(2rem + 30rem * 1);
+}
+#parametres_plugincss fieldset .grid > div.tab label[data-order="2"] {
+	left: calc(2rem + 30rem * 2);
+}
+#parametres_plugincss fieldset .grid > div.tab label[data-order="3"] {
+	left: calc(2rem + 30rem * 3);
+}
+#parametres_plugincss fieldset .grid > div.tab label:not(.active) {
+	background-color: #ddd;
+	color: #fff;
+}
+#parametres_plugincss fieldset .grid > div.tab label:not(.active):hover {
+	cursor: pointer;
+	color: #000;
+}
+#parametres_plugincss fieldset .grid > div.tab label:not(.active) ~ * {
+	display: none;
+}
