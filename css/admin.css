@@ -204,6 +204,9 @@ body.fullScreen .ace_editor {
 #parametres_plugincss fieldset .grid:last-of-type > div.tab {
 	margin-bottom: 2rem;
 }
+#parametres_plugincss fieldset {
+	position: relative; /* refs pour les onglets <label> */
+}
 #parametres_plugincss fieldset .grid > div.tab label {
 	position: absolute;
 	top: 0;
