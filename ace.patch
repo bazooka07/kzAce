@@ -1,0 +1,145 @@
+diff --git a/lib/ace/ext/emmet.js b/lib/ace/ext/emmet.js
+index 49eb14e..d1e1ede 100644
+--- a/lib/ace/ext/emmet.js
++++ b/lib/ace/ext/emmet.js
+@@ -47,7 +47,7 @@ AceEmmetEditor.prototype = {
+         this.indentation = editor.session.getTabString();
+         if (!emmet)
+             emmet = window.emmet;
+-        var resources = emmet.resources || emmet.require("resources");
++        var resources = emmet.resources;
+         resources.setVariable("indentation", this.indentation);
+         this.$syntax = null;
+         this.$syntax = this.getSyntax();
+@@ -162,16 +162,16 @@ AceEmmetEditor.prototype = {
+         if (end == null)
+             end = start == null ? this.getContent().length : start;
+         if (start == null)
+-            start = 0;        
+-        
++            start = 0;
++
+         var editor = this.ace;
+         var doc = editor.session.doc;
+         var range = Range.fromPoints(doc.indexToPosition(start), doc.indexToPosition(end));
+         editor.session.remove(range);
+-        
++
+         range.end = range.start;
+         //editor.selection.setRange(range);
+-        
++
+         value = this.$updateTabstops(value);
+         snippetManager.insertSnippet(editor, value);
+     },
+@@ -213,7 +213,7 @@ AceEmmetEditor.prototype = {
+      * @return {String}
+      */
+     getProfileName: function() {
+-        var resources = emmet.resources || emmet.require("resources");
++        var resources = emmet.resources;
+         switch (this.getSyntax()) {
+           case "css": return "css";
+           case "xml":
+@@ -258,7 +258,7 @@ AceEmmetEditor.prototype = {
+     getFilePath: function() {
+         return "";
+     },
+-    
++
+     // update tabstops: make sure all caret placeholders are unique
+     // by default, abbreviation parser generates all unlinked (un-mirrored)
+     // tabstops as ${0}, so we have upgrade all caret tabstops with unique
+@@ -268,8 +268,8 @@ AceEmmetEditor.prototype = {
+         var base = 1000;
+         var zeroBase = 0;
+         var lastZero = null;
+-        var ts = emmet.tabStops || emmet.require('tabStops');
+-        var resources = emmet.resources || emmet.require("resources");
++        var ts = emmet.tabStops;
++        var resources = emmet.resources;
+         var settings = resources.getVocabulary("user");
+         var tabstopOptions = {
+             tabstop: function(data) {
+@@ -306,10 +306,10 @@ AceEmmetEditor.prototype = {
+         if (settings.variables['insert_final_tabstop'] && !/\$\{0\}$/.test(value)) {
+             value += '${0}';
+         } else if (lastZero) {
+-            var common = emmet.utils ? emmet.utils.common : emmet.require('utils');
++            var common = emmet.utils.common;
+             value = common.replaceSubstring(value, '${0}', lastZero[0], lastZero[1]);
+         }
+-        
++
+         return value;
+     }
+ };
+@@ -349,8 +349,8 @@ exports.commands = new HashHandler();
+ exports.runEmmetCommand = function runEmmetCommand(editor) {
+     try {
+         editorProxy.setupContext(editor);
+-        var actions = emmet.actions || emmet.require("actions");
+-    
++        var actions = emmet.actions;
++
+         if (this.action == "expand_abbreviation_with_tab") {
+             if (!editor.selection.isEmpty())
+                 return false;
+@@ -359,14 +359,14 @@ exports.runEmmetCommand = function runEmmetCommand(editor) {
+             if (token && /\btag\b/.test(token.type))
+                 return false;
+         }
+-        
++
+         if (this.action == "wrap_with_abbreviation") {
+             // without setTimeout prompt doesn't work on firefox
+             return setTimeout(function() {
+                 actions.run("wrap_with_abbreviation", editorProxy);
+             }, 0);
+         }
+-        
++
+         var result = actions.run(this.action, editorProxy);
+     } catch(e) {
+         if (!emmet) {
+@@ -459,5 +459,4 @@ exports.setCore = function(e) {
+     else
+        emmet = e;
+ };
+-});
+-
++});
+\ No newline at end of file
+diff --git a/lib/ace/ext/statusbar.js b/lib/ace/ext/statusbar.js
+index 6bb6708..23d598c 100644
+--- a/lib/ace/ext/statusbar.js
++++ b/lib/ace/ext/statusbar.js
+@@ -13,7 +13,7 @@ var StatusBar = function(editor, parentNode) {
+     var statusUpdate = lang.delayedCall(function(){
+         this.updateStatus(editor)
+     }.bind(this)).schedule.bind(null, 100);
+-    
++
+     editor.on("changeStatus", statusUpdate);
+     editor.on("changeSelection", statusUpdate);
+     editor.on("keyboardActivity", statusUpdate);
+@@ -29,15 +29,15 @@ var StatusBar = function(editor, parentNode) {
+         add(editor.keyBinding.getStatusText(editor));
+         if (editor.commands.recording)
+             add("REC");
+-        
++
+         var sel = editor.selection;
+         var c = sel.lead;
+-        
++
+         if (!sel.isEmpty()) {
+             var r = editor.getSelectionRange();
+-            add("(" + (r.end.row - r.start.row) + ":"  +(r.end.column - r.start.column) + ")", " ");
++            add("(" + (r.end.row - r.start.row + 1) + ":"  +(r.end.column - r.start.column) + ")", " ");
+         }
+-        add(c.row + ":" + c.column, " ");        
++        add((c.row + 1) + ":" + (c.column + 1), " ");
+         if (sel.rangeCount)
+             add("[" + sel.rangeCount + "]", " ");
+         status.pop();

@@ -116,7 +116,25 @@ body.fullScreen .ace_editor {
 	z-index: 20;
 	right: 1rem;
 }
-
+/* **** shortcuts keyboard from Ace **** */
+#kbshortcutmenu {
+	padding: 0em 0.5em 1em;
+}
+#kbshortcutmenu h1 {
+	margin: 0.5em 0;
+	padding: 0;
+	font-size: 200%;
+	text-align: center;
+}
+#kbshortcutmenu .ace_optionsMenuCommand {
+	display: inline-block;
+	min-width: 16rem;
+	color: Firebrick;
+	text-align: end;
+}
+#kbshortcutmenu .ace_optionsMenuKey {
+	font-weight: normal;
+}
 /* **** shortcuts keyboard **** */
 #kzAce-kb-shortcuts {
 	display: none;

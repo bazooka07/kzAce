@@ -6,15 +6,11 @@ if(!defined('PLX_ROOT')) { exit; }
 
 class kzAce extends plxPlugin {
 
-	const ACE_PATH = 'ace/lib/ace'; // sans / final !
-	const APP_JS = 'app.js';
-
-	/*
+	//const ACE_PATH = 'ace/lib/ace'; // sans / final !
 	const ACE_PATH = 'ace/build/src'; // sans / final !
-	const APP_JS = 'app-build.js';
-	*/
 
-	/* const ACE_PATH = 'ace-builds/src'; */
+	const EMMET_CORE_URL = 'https://cloud9ide.github.io/emmet-core/emmet.js';
+
 	public function __construct($default_lang) {
 
 		parent::__construct($default_lang);
@@ -76,14 +72,17 @@ class kzAce extends plxPlugin {
 <?php
 	}
 
-
 	public function get_available_themes() {
+		/* Dans les sources ou dans les modules compilés, l'emplacement des fichiers de thème varie :
+		 *	ace/lib/ace/theme/*.js
+		 *	ace/build/src/theme-*.js
+		 * */
 		$result = array();
 		$files = array_map(
 			function($item) {
-				return preg_replace('@^.*/(\w+)\.js$@', '\1', $item);
+				return preg_replace('@^.*/(?:theme-)?(\w+)\.js$@', '\1', $item);
 			},
-			glob(__DIR__.'/'.$this::ACE_PATH.'/theme/*.js')
+			glob(__DIR__.'/'.$this::ACE_PATH.'/{theme/,theme-}*.js', GLOB_BRACE)
 		);
 		foreach($files as $item) {
 			$result[$item] = ucfirst($item);
@@ -91,39 +90,34 @@ class kzAce extends plxPlugin {
 		return $result;
 	}
 
-	private function __print_params($embedded=false) {
+	private function __print_params() {
 		$i18n = array();
 		foreach(explode(' ', 'help fullscreen settings') as $field) {
 			$i18n[$field] = $this->getLang('L_'.strtoupper($field));
 		}
-		$params = array(
-			'ace' => $this::ACE_PATH,
-			'pluginName' => __CLASS__,
-			'theme'	=> $this->getParam('theme'),
-			'i18n'	=> $i18n
-		);
-		if($embedded) {
-			$params['baseUrl'] = $this->root();
-		}
 		echo json_encode(
-			$params,
+			array(
+				'ace'			=> $this::ACE_PATH,
+				'baseUrl'		=> $this->root(),
+				'pluginName'	=> __CLASS__,
+				'theme'			=> $this->getParam('theme'),
+				'emmetCoreUrl'	=> $this::EMMET_CORE_URL,
+				'i18n'			=> $i18n
+			),
 			JSON_UNESCAPED_SLASHES + JSON_UNESCAPED_UNICODE + JSON_FORCE_OBJECT
 		);
 	}
 
 	public function AdminFootEndBody() {
-		$baseUrl = $this->root();
-		/* <script type="text/javascript" data-main="<?php echo $this->root(); ?>app.js" data-params='<?php $this->__print_params();?>' src="<?php echo $baseUrl ?>ace/demo/kitchen-sink/require.js" charset="utf-8"></script> */
+		// Utiliser les apostrophes simples pour data-params (données JSON) !
 ?>
-		<!-- script type="text/javascript" src="https://cloud9ide.github.io/emmet-core/emmet.js" charset="utf-8"></script -->
-		<script type="text/javascript"
-			data-main="<?php echo $this->root().$this::APP_JS; ?>"
-			data-params='<?php $this->__print_params();?>'
-			src="<?php echo $baseUrl ?>ace-builds/demo/kitchen-sink/require.js" charset="utf-8"
-		>
-		</script>
+		<script
+			type="text/javascript"
+			src="<?php echo $this->root(); ?>require.js"
+			data-main="<?php echo $this->root(); ?>app.js"
+			data-params='<?php $this->__print_params(); ?>'
+		></script>
 <?php
 	}
 }
-
 ?>

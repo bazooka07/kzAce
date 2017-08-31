@@ -1,30 +1,18 @@
-// For Javascript embedded in html or php page
-//const PARAMS = <?php $this->__print_params(true); ?>
-
-const PARAMS = JSON.parse(document.querySelector('script[data-main]').getAttribute('data-params'));
-
-// console.log('PARAMS:');
-// console.log(PARAMS);
+const PARAMS = JSON.parse(document.querySelector('script[data-params]').getAttribute('data-params'));
 
 require.config({
 	// baseUrl	: PARAMS.baseUrl,
 	paths: {
-		cloud9: 'https://cloud9ide.github.io/emmet-core/emmet',
 		ace: PARAMS.ace
-	},
-	shim: {
-		ace: {
-			deps: ['cloud9'],
-			exports: 'emmet'
-		}
 	}
 });
 
 define(
 	PARAMS.pluginName,
-	['ace/ace', 'cloud9', 'ace/ext/statusbar', 'ace/ext/emmet' , 'ace/ext/keybinding_menu'],
-	// ['ace/ace', 'cloud9', 'ace/ext/statusbar', 'ace/ext/emmet', 'ace/ext/menu_tools/get_editor_keyboard_shortcuts'],
-	function(ace, cloud9) {
+	['ace/ace'],
+	function(ace) {
+
+		'use strict';
 
 		function myFullScreen(editor) {
 			const FULL_SCREEN = 'fullScreen';
@@ -50,64 +38,7 @@ define(
 			editor.resize();
 		}
 
-		function myShowKeyboardShortcuts(editor) {
-			const ID1 = PARAMS.pluginName + '-kb-shortcuts';
-
-			var container = document.getElementById(ID1);
-			if(container == null) {
-				const TARGET = 'document.getElementById(\'' + ID1 + '\')';
-				const CLOSE_CLICK = TARGET + '.classList.toggle(\'active\')';
-				const CLOSE_BTN =
-					'<div class="close">' +
-						'<button ' +
-							'onclick="' + CLOSE_CLICK + '"' +
-						'>X</button>' +
-					'</div>';
-				var items = [];
-				const getEditorKeybordShortcuts = require('ace/ext/menu_tools/get_editor_keyboard_shortcuts').getEditorKeybordShortcuts;
-				const keybindings = getEditorKeybordShortcuts(editor);
-				keybindings.forEach(function(item) {
-					items.push('<li><span>' + item.key + '</span> : ' + item.command + '</li>')
-				});
-				var container = document.createElement('DIV');
-				container.id = ID1;
-				container.innerHTML =
-					'<div>' +
-						'<h1>ShortCuts keyboard</h1>' +
-						'<ul>' +
-							items.join("\n") +
-						'</ul>' +
-						CLOSE_BTN +
-					'</div>';
-				document.body.appendChild(container);
-			}
-			container.classList.toggle('active');
-		}
-
-		function myShowSettingsMenu(editor) {
-			config.loadModule("ace/ext/settings_menu", function(module) {
-	            module.init(editor);
-	            editor.showSettingsMenu();
-	        });
-		}
-
-		console.log('< ' + '-'.repeat(25) + ' This is the ' + PARAMS.pluginName + ' module ' + '-'.repeat(25) + ' >');
-
-		// Shortcuts keyboard
-		// ace/lib/ace/commands/default_commands.js
-		const DEFAULT_COMMANDS = require("ace/commands/default_commands");
-		[
-			{ name: 'fullscreen', bindKey: 'F11', exec: myFullScreen },
-			{ name: 'helpMe', bindKey: 'Ctrl-F1', exec: myShowKeyboardShortcuts }
-		].forEach(function(item) { DEFAULT_COMMANDS.commands.push(item); });
-
-		// resolve conflict about "Ctrl-," between Ace and Emmet
-		var ind = DEFAULT_COMMANDS.commands.findIndex(function(command) {
-			return (command.name == 'showSettingsMenu');
-		});
-		if(ind != null) {
-			DEFAULT_COMMANDS.commands[ind].bindKey = 'Ctrl-F11';
-		}
+		console.log('< ' + '-'.repeat(25) + ' These are modules for the ' + PARAMS.pluginName + ' plugin ' + '-'.repeat(25) + ' >');
 
 		function focusOn(focus, editor) {
 			// Ace does not manage resize event !
@@ -140,8 +71,8 @@ define(
 					minLines	: 4,
 					maxLines	: 25, // remove style in the editor.container in fullscreen mode !
 					autoScrollEditorIntoView: true,
-					vScrollBarAlwaysVisible: true,
-					enableEmmet	: true
+					// enableEmmet	: true,
+					vScrollBarAlwaysVisible: true
 				},
 				sandbox: {
 					minLines	: 2,
@@ -155,6 +86,35 @@ define(
 
 			return editor;
 		}
+
+		function showShortcuts(editor) {
+			require('ace/ace').config.loadModule("ace/ext/keybinding_menu", function(module) {
+				module.init(editor);
+				editor.showKeyboardShortcuts()
+			});
+		}
+
+		// Alter shortcuts for the keyboard
+		ace.config.loadModule(
+			"ace/commands/default_commands",
+			function(module) {
+				console.log('ace/commands/default_commands module loaded');
+				[
+					{ name: 'fullscreen', bindKey: 'F11', exec: myFullScreen },
+					{ name: 'helpMe', bindKey: 'Ctrl-F1', exec: showShortcuts }
+				].forEach(function(item) { module.commands.push(item); });
+
+				// resolve conflict about "Ctrl-," between Ace and Emmet
+				var ind = module.commands.findIndex(function(command) {
+					return (command.name == 'showSettingsMenu');
+				});
+				if(ind != null) {
+					module.commands[ind].bindKey = 'Ctrl-F11';
+				}
+			}
+		);
+
+		var statusbarExists = false;
 
 		const TEXTAREAS = 'content chapo backend frontend sandbox'.split(' ').map(function(item) {
 			return item.replace(/^(\w+)$/, 'textarea[name="$1"]')
@@ -193,11 +153,12 @@ define(
 						'<span data-command="helpMe">' + PARAMS.i18n.help + ': Ctrl-F1</span>' +
 						'<span data-command="fullscreen">' + PARAMS.i18n.fullscreen + ': F11</span>' +
 						'<span data-command="showSettingsMenu">' + PARAMS.i18n.settings + ': Ctrl-F11</span>' +
-						'<span>Ace version ' + ace.version + '</span>' +
 					'</div>' +
 					'<div class="spacer">&nbsp;</div>';
 				node.parentElement.appendChild(statusBar);
+				statusbarExists = true;
 
+				// Ace doesn't hide textarea element. So we do that !
 				node.classList.add('hide');
 
 			    var mode = 'php';
@@ -220,9 +181,6 @@ define(
 					}
 				});
 
-				const StatusBar = ace.require("ace/ext/statusbar").StatusBar;
-				var st = new StatusBar(ed, statusBar);
-
 				// Traitement avant envoi du formulaire
 				if(form1 != null) {
 					if(form1.editors == undefined) {
@@ -240,6 +198,48 @@ define(
 				}
 			}
 		});
+
+		// Add indicator on each statusbar
+		if(statusbarExists) { // no statusbar for config.php
+			ace.config.loadModule(
+				"ace/ext/statusbar",
+				function(module) {
+					// chaque statusbar a une class="statusbar" et this.editor
+					console.log('ace/ext/statusbar module loaded');
+					const version = require('ace/ace').version;
+					document.querySelectorAll('.statusbar').forEach(function(node) {
+						const span = document.createElement('SPAN');
+						span.innerHTML = 'Ace version ' + version;
+						node.querySelector('div').appendChild(span);
+						if(typeof node.editor != 'undefined') {
+							const indicator = node.querySelector('ace_status-indicator');
+							if(indicator == null) {
+								const StatusBar = module.StatusBar;
+								const st = new StatusBar(node.editor, node);
+							}
+						}
+					});
+				}
+			);
+
+			// And we don't want Emmet for config.php anymore.
+			ace.config.loadModule(
+				'ace/ext/emmet',
+				function(Emmet) {
+					console.log('ace/ext/emmet loaded');
+					var net = require('ace/lib/net');
+					net.loadScript(PARAMS.emmetCoreUrl, function() {
+					    Emmet.setCore(window.emmet);
+					    document.querySelectorAll('.statusbar').forEach(function(node) {
+							if(typeof node.editor != 'undefined') {
+								const mode = node.editor.getSession().getMode();
+								node.editor.setOption('enableEmmet', true);
+							}
+						});
+					});
+				}
+			);
+		}
 	}
 );
 

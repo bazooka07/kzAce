@@ -15,6 +15,7 @@ $LANG = array(
 	'L_USER'					=> 'Utilisateurs',
 	'L_HELP'					=> 'Aide',
 	'L_FULLSCREEN'				=> 'Plein écran',
-	'L_SETTINGS'				=> 'Réglages'
+	'L_SETTINGS'				=> 'Réglages',
+	'L_MISSING_LIB_ACE'			=> 'Le dossier %s pour la librairie de Ace est introuvable'
 );
 ?>
