@@ -1,4 +1,4 @@
-** KzAce **
+__KzAce__
 
 Plugin pour [PluXml](http://pluxml.org), gestionaire de contenus ou de blog.
 
