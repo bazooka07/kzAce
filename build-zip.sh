@@ -10,7 +10,7 @@ VERSION=$(\
 
 cd ..
 
-ZIP_NAME="${PLUGIN_NAME}_${VERSION}.zip"
+ZIP_NAME="${PLUGIN_NAME}-${VERSION}.zip"
 PATTERN1='(css/.*|lang/.*|\w[^/]*|\.htaccess|ace/build/src/.*)'
 
 # Construction de l'archive

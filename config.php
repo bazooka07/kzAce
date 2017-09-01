@@ -15,8 +15,7 @@ plxToken::validateFormToken($_POST);
  * */
 
 const ADMIN_FILES =
-	'article categorie comment_new comment parametres_affichage '.
-	'parametres_edittpl parametres_plugincss profil statique user';
+	'article categorie comment_new comment parametres_affichage parametres_edittpl parametres_plugincss profil statique user';
 $params = array(
 	'theme'				=> 'string',
 	/*
@@ -108,6 +107,7 @@ $field = 'theme';
 		</div>
 	</form>
 	<div>
+		<p><?php $plxPlugin->lang('L_PREVIEW'); ?></p>
 		<textarea name="sandbox"><?php
 			echo str_replace('<',  '&lt;', file_get_contents(__FILE__));
 		?></textarea>

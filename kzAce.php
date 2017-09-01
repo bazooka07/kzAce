@@ -17,19 +17,24 @@ class kzAce extends plxPlugin {
 
 		$this->setConfigProfil(PROFIL_ADMIN);
 
-		// parametres_plugin.php?p=kzAce
-		$script_name = basename($_SERVER['SCRIPT_NAME'], '.php');
-		$enabled = explode('|', $this->getParam('admin_files'));
-		if(
-			in_array($script_name, $enabled) or
-			(
-				($script_name == 'parametres_plugin') and
-				!empty($_GET['p']) and
-				($_GET['p'] == __CLASS__)
-			)
-		) {
-			$this->addHook('AdminFootEndBody', 'AdminFootEndBody');
-			$this->addHook('AdminPluginCss', 'AdminPluginCss');
+
+		if(is_dir(__DIR__.'/'.$this::ACE_PATH)) {
+			// parametres_plugin.php?p=kzAce
+			$script_name = basename($_SERVER['SCRIPT_NAME'], '.php');
+			$enabled = explode('|', $this->getParam('admin_files'));
+			if(
+				in_array($script_name, $enabled) or
+				(
+					($script_name == 'parametres_plugin') and
+					!empty($_GET['p']) and
+					($_GET['p'] == __CLASS__)
+				)
+			) {
+				$this->addHook('AdminFootEndBody', 'AdminFootEndBody');
+				$this->addHook('AdminPluginCss', 'AdminPluginCss');
+			}
+		} else {
+			plxMsg::Error(sprintf($this->getLang('L_MISSING_LIB_ACE'), __DIR__.'/'.$this::ACE_PATH));
 		}
 	}
 
@@ -77,12 +82,16 @@ class kzAce extends plxPlugin {
 		 *	ace/lib/ace/theme/*.js
 		 *	ace/build/src/theme-*.js
 		 * */
+
+		// GLOB_BRACE n'est pas supporté par Alpine-Linux
+		$theme_path = '/theme'.((strpos($this::ACE_PATH, 'build') > 0) ? '-' : '/').'*.js';
+
 		$result = array();
 		$files = array_map(
 			function($item) {
 				return preg_replace('@^.*/(?:theme-)?(\w+)\.js$@', '\1', $item);
 			},
-			glob(__DIR__.'/'.$this::ACE_PATH.'/{theme/,theme-}*.js', GLOB_BRACE)
+			glob(__DIR__.'/'.$this::ACE_PATH.$theme_path)
 		);
 		foreach($files as $item) {
 			$result[$item] = ucfirst($item);
@@ -110,6 +119,8 @@ class kzAce extends plxPlugin {
 
 	public function AdminFootEndBody() {
 		// Utiliser les apostrophes simples pour data-params (données JSON) !
+		$function_name = 'json_encode';
+		if(function_exists($function_name)) {
 ?>
 		<script
 			type="text/javascript"
@@ -118,6 +129,9 @@ class kzAce extends plxPlugin {
 			data-params='<?php $this->__print_params(); ?>'
 		></script>
 <?php
+		} else {
+			plxMsg::Error(sprintf($this->getLang('L_MISSING_FUNCTION'), $function_name));
+		}
 	}
 }
 ?>

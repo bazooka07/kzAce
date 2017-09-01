@@ -39,6 +39,7 @@ form .ace_editor {
 .kzAce pre.ace_editor {
 	resize: vertical;
 	min-height: 6rem;
+	border-top: 1px solid #eee;
 }
 .kzAce .statusbar {
 	height: 2.5rem;
@@ -115,6 +116,13 @@ body.fullScreen .ace_editor {
 	top: 1rem;
 	z-index: 20;
 	right: 1rem;
+}
+#form_kzAce + div p {
+    margin-bottom: 0;
+    text-align: center;
+}
+#form_kzAce + div pre {
+    margin-top: 0;
 }
 /* **** shortcuts keyboard from Ace **** */
 #kbshortcutmenu {
@@ -212,6 +220,8 @@ body.fullScreen .ace_editor {
 	top: 0;
 	width: calc(30rem - 0.5rem);
 	margin-right: 0.5rem;
+	padding: 0.4rem;
+	line-height: 1.5;
 	text-align: center;
 }
 /* calc(2rem + 30rem * attr('data-order')) ne fonctionne pas ! */
@@ -234,6 +244,9 @@ body.fullScreen .ace_editor {
 #parametres_plugincss fieldset .grid > div.tab label:not(.active):hover {
 	cursor: pointer;
 	color: #000;
+}
+#parametres_plugincss fieldset .grid > div.tab label.active {
+	background-color: #eee;
 }
 #parametres_plugincss fieldset .grid > div.tab label:not(.active) ~ * {
 	display: none;
