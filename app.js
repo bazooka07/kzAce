@@ -1,3 +1,20 @@
+if (!Array.prototype.findIndex)//4 old browser like chromium 31 (don't have)
+	Array.prototype.findIndex = function (predicate, thisValue) {//src : http://2ality.com/2013/12/array-prototype-find.html
+		var arr = Object(this);
+		if (typeof predicate !== 'function') {
+			throw new TypeError();
+		}
+		for(var i=0; i < arr.length; i++) {
+			if (i in arr) {// skip holes
+				var elem = arr[i];
+				if (predicate.call(thisValue, elem, i, arr)) {
+					return i;//[find()] elem;
+				}
+			}
+		}
+		return -1;//[find()] undefined;
+	}
+
 const PARAMS = JSON.parse(document.querySelector('script[data-params]').getAttribute('data-params'));
 
 require.config({
@@ -13,7 +30,6 @@ define(
 	function(ace) {
 
 		'use strict';
-
 		function myFullScreen(editor) {
 			const FULL_SCREEN = 'fullScreen';
 
@@ -64,9 +80,11 @@ define(
 
 		function createEditor(node, mode, context='normal') {
 			const editor = ace.edit(node);
-		    editor.setTheme('ace/theme/' + PARAMS.theme);
-		    editor.getSession().setMode('ace/mode/' + mode);
-		    const options = {
+			if('theme' in PARAMS) {
+				editor.setTheme('ace/theme/' + PARAMS.theme);
+			}
+				editor.getSession().setMode('ace/mode/' + mode);
+				const options = {
 				normal: {
 					minLines	: 4,
 					maxLines	: 25, // remove style in the editor.container in fullscreen mode !
@@ -83,6 +101,9 @@ define(
 			if(context in options) {
 			    editor.setOptions(options[context]);
 			}
+
+			// Fix recommended by Ace Editor
+			editor.$blockScrolling = Infinity
 
 			return editor;
 		}
@@ -119,9 +140,9 @@ define(
 		const TEXTAREAS = 'content chapo backend frontend sandbox'.split(' ').map(function(item) {
 			return item.replace(/^(\w+)$/, 'textarea[name="$1"]')
 		});
-
-		document.querySelectorAll(TEXTAREAS).forEach(function(node) {
-		    if(node.name == 'sandbox') {
+		var nodes = Array.prototype.slice.call(document.querySelectorAll(TEXTAREAS),0);//add forEach 2 nodeList //stackoverflow.com/a/15398145
+		nodes.forEach(function(node) {
+			if(node.name == 'sandbox') {
 				// For testing in config.php
 				const ed = createEditor(node, 'php', 'sandbox');
 				const select = document.querySelector('select[name="theme"]');
@@ -157,12 +178,10 @@ define(
 					'<div class="spacer">&nbsp;</div>';
 				node.parentElement.appendChild(statusBar);
 				statusbarExists = true;
-
 				// Ace doesn't hide textarea element. So we do that !
 				node.classList.add('hide');
-
-			    var mode = 'php';
-			    if(/^(?:back|front)end/.test(node.name)) {
+				var mode = 'php';
+				if(/^(?:back|front)end/.test(node.name)) {
 					mode = 'css';
 				} else if('template' in form1.elements) {
 					const ext = form1.elements.template.value.replace(/^.*\.(\w+)$/, '$1');
@@ -170,11 +189,11 @@ define(
 						mode = ext;
 					}
 				}
-			    const ed = createEditor(pre1, mode);
-			    ed.setValue(node.value);
-			    ed.on('focus', focusOn);
-			    statusBar.editor = ed;
-			    statusBar.addEventListener('click', function(event) {
+				const ed = createEditor(pre1, mode);
+				ed.setValue(node.value);
+				ed.on('focus', focusOn);
+				statusBar.editor = ed;
+				statusBar.addEventListener('click', function(event) {
 					if(event.target.tagName == 'SPAN' && event.target.hasAttribute('data-command')) {
 						event.preventDefault();
 						this.editor.execCommand(event.target.getAttribute('data-command'));
@@ -207,7 +226,8 @@ define(
 					// chaque statusbar a une class="statusbar" et this.editor
 					console.log('ace/ext/statusbar module loaded');
 					const version = require('ace/ace').version;
-					document.querySelectorAll('.statusbar').forEach(function(node) {
+					var nodes = Array.prototype.slice.call(document.querySelectorAll('.statusbar'),0);//add forEach 2 nodeList*
+					nodes.forEach(function(node) {
 						const span = document.createElement('SPAN');
 						span.innerHTML = 'Ace version ' + version;
 						node.querySelector('div').appendChild(span);
@@ -229,8 +249,10 @@ define(
 					console.log('ace/ext/emmet loaded');
 					var net = require('ace/lib/net');
 					net.loadScript(PARAMS.emmetCoreUrl, function() {
-					    Emmet.setCore(window.emmet);
-					    document.querySelectorAll('.statusbar').forEach(function(node) {
+						Emmet.setCore(window.emmet);
+						var nodes = Array.prototype.slice.call(document.querySelectorAll('.statusbar'),0);
+						console.log(nodes);
+						nodes.forEach(function(node) {
 							if(typeof node.editor != 'undefined') {
 								const mode = node.editor.getSession().getMode();
 								node.editor.setOption('enableEmmet', true);
