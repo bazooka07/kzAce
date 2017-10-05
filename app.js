@@ -64,14 +64,15 @@ define(
 
 		function createEditor(node, mode, context='normal') {
 			const editor = ace.edit(node);
-		    editor.setTheme('ace/theme/' + PARAMS.theme);
+			if('theme' in PARAMS) {
+				editor.setTheme('ace/theme/' + PARAMS.theme);
+			}
 		    editor.getSession().setMode('ace/mode/' + mode);
 		    const options = {
 				normal: {
 					minLines	: 4,
 					maxLines	: 25, // remove style in the editor.container in fullscreen mode !
 					autoScrollEditorIntoView: true,
-					// enableEmmet	: true,
 					vScrollBarAlwaysVisible: true
 				},
 				sandbox: {
@@ -83,6 +84,9 @@ define(
 			if(context in options) {
 			    editor.setOptions(options[context]);
 			}
+
+			// Fix recommended by Ace Editor
+			editor.$blockScrolling = Infinity
 
 			return editor;
 		}

@@ -31,11 +31,12 @@ class kzAce extends plxPlugin {
 				)
 			) {
 				$this->addHook('AdminFootEndBody', 'AdminFootEndBody');
-				$this->addHook('AdminPluginCss', 'AdminPluginCss');
 			}
 		} else {
 			plxMsg::Error(sprintf($this->getLang('L_MISSING_LIB_ACE'), __DIR__.'/'.$this::ACE_PATH));
 		}
+
+		$this->addHook('AdminPluginCss', 'AdminPluginCss');
 	}
 
 	public function root() {
@@ -86,7 +87,7 @@ class kzAce extends plxPlugin {
 		// GLOB_BRACE n'est pas supporté par Alpine-Linux
 		$theme_path = '/theme'.((strpos($this::ACE_PATH, 'build') > 0) ? '-' : '/').'*.js';
 
-		$result = array();
+		$result = array('' => $this->getLang('L_DEFAULT'));
 		$files = array_map(
 			function($item) {
 				return preg_replace('@^.*/(?:theme-)?(\w+)\.js$@', '\1', $item);
@@ -104,15 +105,20 @@ class kzAce extends plxPlugin {
 		foreach(explode(' ', 'help fullscreen settings') as $field) {
 			$i18n[$field] = $this->getLang('L_'.strtoupper($field));
 		}
+		$params = array(
+			'ace'			=> $this::ACE_PATH,
+			'baseUrl'		=> $this->root(),
+			'pluginName'	=> __CLASS__,
+			'emmetCoreUrl'	=> $this::EMMET_CORE_URL,
+			'i18n'			=> $i18n
+		);
+		$theme = $this->getParam('theme');
+		if(!empty($theme)) {
+			$params['theme'] = $theme;
+		}
+
 		echo json_encode(
-			array(
-				'ace'			=> $this::ACE_PATH,
-				'baseUrl'		=> $this->root(),
-				'pluginName'	=> __CLASS__,
-				'theme'			=> $this->getParam('theme'),
-				'emmetCoreUrl'	=> $this::EMMET_CORE_URL,
-				'i18n'			=> $i18n
-			),
+			$params,
 			JSON_UNESCAPED_SLASHES + JSON_UNESCAPED_UNICODE + JSON_FORCE_OBJECT
 		);
 	}

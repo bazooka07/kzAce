@@ -1,16 +1,18 @@
 #!/bin/sh
 
+CURRENT_PWD=$(pwd)
 cd $(dirname ${0})
 
 PLUGIN_NAME=$(basename $PWD)
 VERSION=$(\
 	grep "<version>" infos.xml \
-	| sed 's/^\s*<version>\([^<]*\)<\/version>.*$/\1/; s/\./_/' \
+	| sed 's/^\s*<version>\([^<]*\)<\/version>.*$/\1/' \
 )
+echo "\n\033[33mPlugin ${PLUGIN_NAME} - version ${VERSION}\033[0m\n"
 
 cd ..
 
-ZIP_NAME="${PLUGIN_NAME}-${VERSION}.zip"
+ZIP_NAME="${CURRENT_PWD}/${PLUGIN_NAME}-$(echo ${VERSION} | sed 's/\./_/g').zip"
 PATTERN1='(css/.*|lang/.*|\w[^/]*|\.htaccess|ace/build/src/.*)'
 
 # Construction de l'archive
@@ -25,7 +27,7 @@ NEWER_FILE=$(\
 )
 touch -r ${NEWER_FILE} ${ZIP_NAME}
 
-echo "L'archive ${ZIP_NAME} est dans le dossier ${PWD}."
+echo "\nNom complet de l'archive du plugin:\n\033[32m${ZIP_NAME}\033[0m\n"
 
 cd $OLDPWD
 

@@ -18,6 +18,7 @@ $LANG = array(
 	'L_SETTINGS'				=> 'Réglages',
 	'L_MISSING_LIB_ACE'			=> 'Le dossier %s pour la librairie de Ace est introuvable',
 	'L_MISSING_FUNCTION'		=> 'La fonction %s est manquante. Installer le module JSON correspondant de PHP.',
-	'L_PREVIEW'					=> 'Aperçu'
+	'L_PREVIEW'					=> 'Aperçu',
+	'L_DEFAULT'					=> 'Défaut'
 );
 ?>
