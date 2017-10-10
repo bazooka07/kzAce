@@ -101,12 +101,6 @@ body.fullScreen .ace_editor {
 #form_kzAce .admin-files p {
     margin: 0.3rem 0;
 }
-#form_kzAce > div:last-of-type p {
-	margin-bottom: 0;
-}
-#form_kzAce > div:last-of-type input[type="submit"] {
-	width: 100%;
-}
 #form_kzAce + div textarea {
 	height: 10rem;
 	width: 100%;
@@ -239,14 +233,15 @@ body.fullScreen .ace_editor {
 }
 #parametres_plugincss fieldset .grid > div.tab label:not(.active) {
 	background-color: #ddd;
-	color: #fff;
+	color: #666;
 }
 #parametres_plugincss fieldset .grid > div.tab label:not(.active):hover {
 	cursor: pointer;
 	color: #000;
 }
 #parametres_plugincss fieldset .grid > div.tab label.active {
-	background-color: #eee;
+	color: #eee;
+	background-color: #666;
 }
 #parametres_plugincss fieldset .grid > div.tab label:not(.active) ~ * {
 	display: none;

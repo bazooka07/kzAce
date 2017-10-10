@@ -99,11 +99,9 @@ $field = 'theme';
 				<img src="<?php echo $plxPlugin->root(); ?>icon.png" alt="Icon" />
 			</a>
 		</div>
-		<div>
-			<p>
-				<?php echo plxToken::getTokenPostMethod(); ?>
-				<input type="submit" value="<?php echo L_ARTICLE_UPDATE_BUTTON; ?>" />
-			</p>
+		<div class="in-action-bar">
+			<?php echo plxToken::getTokenPostMethod(); ?>
+			<input type="submit" value="<?php echo L_ARTICLE_UPDATE_BUTTON; ?>" />
 		</div>
 	</form>
 	<div>
