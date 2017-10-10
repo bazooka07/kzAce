@@ -246,3 +246,7 @@ body.fullScreen .ace_editor {
 #parametres_plugincss fieldset .grid > div.tab label:not(.active) ~ * {
 	display: none;
 }
+/* --------- divers -------------- */
+#ace_settingsmenu > div:nth-of-type(2n) {
+    background-color: #eee;
+}

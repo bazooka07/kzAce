@@ -109,11 +109,11 @@ define(
 				].forEach(function(item) { module.commands.push(item); });
 
 				// resolve conflict about "Ctrl-," between Ace and Emmet
-				var ind = module.commands.findIndex(function(command) {
-					return (command.name == 'showSettingsMenu');
-				});
-				if(ind != null) {
-					module.commands[ind].bindKey = 'Ctrl-F11';
+				for(var i=0, iMax=module.commands.length; i<iMax; i++) {
+					if(module.commands[i].name == 'showSettingsMenu') {
+						module.commands[i].bindKey = 'Ctrl-F11';
+						break;
+					}
 				}
 			}
 		);
@@ -124,7 +124,10 @@ define(
 			return item.replace(/^(\w+)$/, 'textarea[name="$1"]')
 		});
 
-		document.querySelectorAll(TEXTAREAS).forEach(function(node) {
+		const textareas = document.querySelectorAll(TEXTAREAS);
+		for(var i=0, iMax=textareas.length; i<iMax; i++) {
+			const node = textareas.item(i);
+
 		    if(node.name == 'sandbox') {
 				// For testing in config.php
 				const ed = createEditor(node, 'php', 'sandbox');
@@ -187,7 +190,7 @@ define(
 
 				// Traitement avant envoi du formulaire
 				if(form1 != null) {
-					if(form1.editors == undefined) {
+					if(typeof form1.editors === 'undefined') {
 						form1.editors = [];
 						form1.addEventListener('submit', function(event) {
 							this.editors.forEach(function(item) {
@@ -201,7 +204,7 @@ define(
 					});
 				}
 			}
-		});
+		}
 
 		// Add indicator on each statusbar
 		if(statusbarExists) { // no statusbar for config.php
@@ -211,7 +214,10 @@ define(
 					// chaque statusbar a une class="statusbar" et this.editor
 					console.log('ace/ext/statusbar module loaded');
 					const version = require('ace/ace').version;
-					document.querySelectorAll('.statusbar').forEach(function(node) {
+					const statusbars = document.querySelectorAll('.statusbar');
+					for(var i=0, iMax=statusbars.length; i<iMax; i++) {
+						const node = statusbars.item(i);
+
 						const span = document.createElement('SPAN');
 						span.innerHTML = 'Ace version ' + version;
 						node.querySelector('div').appendChild(span);
@@ -222,7 +228,7 @@ define(
 								const st = new StatusBar(node.editor, node);
 							}
 						}
-					});
+					}
 				}
 			);
 
@@ -234,12 +240,15 @@ define(
 					var net = require('ace/lib/net');
 					net.loadScript(PARAMS.emmetCoreUrl, function() {
 					    Emmet.setCore(window.emmet);
-					    document.querySelectorAll('.statusbar').forEach(function(node) {
+					    const statusbars = document.querySelectorAll('.statusbar');
+					    for(var i=0, iMax=statusbars.length; i<iMax; i++) {
+							const node = statusbars.item(i);
+
 							if(typeof node.editor != 'undefined') {
 								const mode = node.editor.getSession().getMode();
 								node.editor.setOption('enableEmmet', true);
 							}
-						});
+						}
 					});
 				}
 			);
