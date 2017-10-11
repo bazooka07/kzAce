@@ -13,6 +13,7 @@ $LANG = array(
 	'L_PROFIL'					=> 'Profil utilisateur',
 	'L_STATIQUE'				=> 'Page statique',
 	'L_USER'					=> 'Utilisateurs',
+	'L_SAVEDOC'					=> 'Enregistrer',
 	'L_HELP'					=> 'Aide',
 	'L_FULLSCREEN'				=> 'Plein écran',
 	'L_SETTINGS'				=> 'Réglages',

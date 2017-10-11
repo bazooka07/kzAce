@@ -1,7 +1,6 @@
 const PARAMS = JSON.parse(document.querySelector('script[data-params]').getAttribute('data-params'));
 
 require.config({
-	// baseUrl	: PARAMS.baseUrl,
 	paths: {
 		ace: PARAMS.ace
 	}
@@ -38,7 +37,7 @@ define(
 			editor.resize();
 		}
 
-		console.log('< ' + '-'.repeat(25) + ' These are modules for the ' + PARAMS.pluginName + ' plugin ' + '-'.repeat(25) + ' >');
+		// console.log('< ' + '-'.repeat(25) + ' These are modules for the ' + PARAMS.pluginName + ' plugin ' + '-'.repeat(25) + ' >');
 
 		function focusOn(focus, editor) {
 			// Ace does not manage resize event !
@@ -98,14 +97,33 @@ define(
 			});
 		}
 
+		function saveDoc(editor) {
+			if(typeof editor.container.form === 'object' && confirm('Save the document')) {
+
+				if(sessionStorage) {
+					const fullScreen = (editor.container.classList.contains('fullScreen')) ? '1' : '0';
+					const position = editor.getCursorPosition();
+					sessionStorage.setItem('ace-containerId', editor.container.id);
+					sessionStorage.setItem('ace-fullScreen', fullScreen);
+					sessionStorage.setItem('ace-lineCursor', position.row);
+					sessionStorage.setItem('ace-columnCursor', position.column);
+				}
+
+				/* PluXml 5.6 donne le nom 'submit' à un élément du formulaire de type submit !!!!!! */
+				//editor.container.form.submit();
+				editor.container.form.querySelector('input[type="submit"]').click();
+			}
+		}
+
 		// Alter shortcuts for the keyboard
 		ace.config.loadModule(
 			"ace/commands/default_commands",
 			function(module) {
-				console.log('ace/commands/default_commands module loaded');
+				// console.log('ace/commands/default_commands module loaded');
 				[
 					{ name: 'fullscreen', bindKey: 'F11', exec: myFullScreen },
-					{ name: 'helpMe', bindKey: 'Ctrl-F1', exec: showShortcuts }
+					{ name: 'helpMe', bindKey: 'Ctrl-F1', exec: showShortcuts },
+					{ name: 'saveDoc', bindKey: 'Ctrl-S', exec: saveDoc }
 				].forEach(function(item) { module.commands.push(item); });
 
 				// resolve conflict about "Ctrl-," between Ace and Emmet
@@ -119,7 +137,8 @@ define(
 		);
 
 		var statusbarExists = false;
-
+		const lastContainerId = (typeof sessionStorage === 'object') ? sessionStorage.getItem('ace-containerId') : null;
+		var lastStatusBar = null;
 		const TEXTAREAS = 'content chapo backend frontend sandbox'.split(' ').map(function(item) {
 			return item.replace(/^(\w+)$/, 'textarea[name="$1"]')
 		});
@@ -141,15 +160,24 @@ define(
 			} else {
 				const form1 = node.form;
 				// Pour modifier z-index de .section .action-bar
+				var id = ['ace', node.name];
 				if((form1 != null)) {
 					form1.classList.add(PARAMS.pluginName);
+					if(form1.id != null) {
+						id.push(form1.getAttribute('id')); // PluXml utilise 'id' comme nom d'élément dans le formulaire de page statique !!!!
+					};
 				}
 
 				// container for editor
+				const pre1Id = id.join('-');
 				const pre1 = document.createElement('PRE');
-				pre1.id = 'ace-' + node.name;
+				pre1.id = pre1Id;
+				if((form1 != null)) {
+					pre1.form = form1;
+				}
 				pre1.className = 'resize';
 				node.parentElement.appendChild(pre1);
+
 
 				// Container for statusbar
 				const statusBar = document.createElement('DIV');
@@ -157,6 +185,7 @@ define(
 				statusBar.innerHTML =
 					'<div>' +
 						'<span>' + PARAMS.pluginName + ' plugin</span>' +
+						'<span data-command="saveDoc">' + PARAMS.i18n.savedoc + ': Ctrl-S</span>' +
 						'<span data-command="helpMe">' + PARAMS.i18n.help + ': Ctrl-F1</span>' +
 						'<span data-command="fullscreen">' + PARAMS.i18n.fullscreen + ': F11</span>' +
 						'<span data-command="showSettingsMenu">' + PARAMS.i18n.settings + ': Ctrl-F11</span>' +
@@ -177,10 +206,17 @@ define(
 						mode = ext;
 					}
 				}
+
 			    const ed = createEditor(pre1, mode);
 			    ed.setValue(node.value);
 			    ed.on('focus', focusOn);
 			    statusBar.editor = ed;
+			    if(lastContainerId == pre1Id) {
+					lastStatusBar = statusBar;
+					if(sessionStorage.getItem('ace-fullScreen') === '1') {
+						myFullScreen(ed);
+					}
+				}
 			    statusBar.addEventListener('click', function(event) {
 					if(event.target.tagName == 'SPAN' && event.target.hasAttribute('data-command')) {
 						event.preventDefault();
@@ -196,6 +232,7 @@ define(
 							this.editors.forEach(function(item) {
 								item.node.value = item.editor.getValue();
 							});
+							// console.log('Submission of the form');
 						});
 					}
 					form1.editors.push({
@@ -212,7 +249,6 @@ define(
 				"ace/ext/statusbar",
 				function(module) {
 					// chaque statusbar a une class="statusbar" et this.editor
-					console.log('ace/ext/statusbar module loaded');
 					const version = require('ace/ace').version;
 					const statusbars = document.querySelectorAll('.statusbar');
 					for(var i=0, iMax=statusbars.length; i<iMax; i++) {
@@ -229,6 +265,15 @@ define(
 							}
 						}
 					}
+
+					if(lastStatusBar != null) {
+						const line = parseInt(sessionStorage.getItem('ace-lineCursor')) + 1;
+						const column = parseInt(sessionStorage.getItem('ace-columnCursor')) + 1;
+						lastStatusBar.editor.gotoLine(line, column);
+						lastStatusBar.editor.focus();
+					}
+
+					// console.log('ace/ext/statusbar module loaded');
 				}
 			);
 
@@ -236,7 +281,7 @@ define(
 			ace.config.loadModule(
 				'ace/ext/emmet',
 				function(Emmet) {
-					console.log('ace/ext/emmet loaded');
+					// console.log('ace/ext/emmet loaded');
 					var net = require('ace/lib/net');
 					net.loadScript(PARAMS.emmetCoreUrl, function() {
 					    Emmet.setCore(window.emmet);

@@ -52,18 +52,27 @@ class kzAce extends plxPlugin {
 ?>
 	<script type="text/javascript">
 		(function() {
+
+			'use strict';
+
 			const ACTIVE = 'active';
 
 			function activeTab(event) {
 				event.preventDefault();
-				document.body.querySelectorAll('label.' + ACTIVE).forEach(function(item) {
-					item.classList.remove(ACTIVE);
-				});
+				const labels = document.body.querySelectorAll('label.' + ACTIVE);
+				for(var i=0, iMax=labels.length; i<iMax; i++) {
+					labels.item(i).classList.remove(ACTIVE);
+				}
 				event.target.classList.add(ACTIVE);
+				if(sessionStorage) {
+					sessionStorage.setItem('kzAce-pluginCSS', event.target.getAttribute('for'));
+				}
 			}
 
 			var counter = 0;
-			document.body.querySelectorAll('#parametres_plugincss fieldset .grid > div').forEach(function(item) {
+			const divs = document.body.querySelectorAll('#parametres_plugincss fieldset .grid > div');
+			for(var i=0, iMax=divs.length; i<iMax; i++) {
+				const item = divs.item(i);
 				item.classList.add('tab');
 				const label = item.querySelector('label:first-of-type');
 				label.setAttribute('data-order', counter);
@@ -72,7 +81,16 @@ class kzAce extends plxPlugin {
 					label.classList.add(ACTIVE);
 				}
 				counter++;
-			});
+			}
+			if(sessionStorage != null) {
+				const lastTab = sessionStorage.getItem('kzAce-pluginCSS');
+				if(lastTab != null) {
+					var tab = document.querySelector('label[for="' + lastTab + '"]');
+					if(tab != null) {
+						tab.click();
+					}
+				}
+			}
 		})();
 	</script>
 <?php
@@ -102,7 +120,7 @@ class kzAce extends plxPlugin {
 
 	private function __print_params() {
 		$i18n = array();
-		foreach(explode(' ', 'help fullscreen settings') as $field) {
+		foreach(explode(' ', 'savedoc help fullscreen settings') as $field) {
 			$i18n[$field] = $this->getLang('L_'.strtoupper($field));
 		}
 		$params = array(
